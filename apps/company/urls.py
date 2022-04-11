@@ -1,8 +1,9 @@
 from rest_framework.routers import DefaultRouter
 
-from apps.company.views import CompanyViewSet
+from apps.company.views import PlanViewSet, RuleViewSet
 
 router = DefaultRouter()
-router.register('companies', CompanyViewSet, basename='companies')
+router.register('plans', PlanViewSet, basename='plans')
+router.register('rules', RuleViewSet, basename='rules')
 
 urlpatterns = router.urls

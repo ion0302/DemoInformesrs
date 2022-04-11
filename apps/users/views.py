@@ -7,6 +7,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from rest_framework.viewsets import GenericViewSet
 
+
 from apps.users.serializers import UserSerializer, UserListSerializer
 
 

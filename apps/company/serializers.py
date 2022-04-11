@@ -1,10 +1,16 @@
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 
-from apps.company.models import Company
+from apps.company.models import Plan, Rule
 
 
-class CompanySerializer(ModelSerializer):
+class PlanSerializer(ModelSerializer):
     class Meta:
-        model = Company
+        model = Plan
+        fields = '__all__'
+
+
+class RuleSerializer(ModelSerializer):
+    class Meta:
+        model = Rule
         fields = '__all__'
