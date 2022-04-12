@@ -7,8 +7,6 @@ from apps.company.permisions import UserHasActivePlan
 
 from apps.company.serializers import PlanSerializer, RuleSerializer, CompanySerializer, PlanLogSerializer
 
-from rest_framework.throttling import UserRateThrottle
-
 
 class PlanViewSet(ModelViewSet):
     serializer_class = PlanSerializer
@@ -31,7 +29,5 @@ class PlanLogViewSet(ModelViewSet):
 class CompanyViewSet(ModelViewSet):
     serializer_class = CompanySerializer
     queryset = Company.objects.all()
-    permission_classes = [IsAuthenticated, UserHasActivePlan]
-
-
+    permission_classes = [IsAuthenticated, UserHasActivePlan, ]
 

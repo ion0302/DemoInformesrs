@@ -1,7 +1,10 @@
 from django.contrib.auth.models import User
+from rest_access_policy import AccessPolicy
 from rest_framework.permissions import BasePermission
 
 from apps.company.models import PlanLog
+
+
 
 
 class UserHasActivePlan(BasePermission):
@@ -18,4 +21,20 @@ class UserHasActivePlan(BasePermission):
                 return True
             else:
                 return False
+
+
+# class CompanyAccessPolicy(AccessPolicy):
+#     statements = [
+#         {
+#             "action": ["list", "retrieve"],
+#             "principal": "*",
+#             "effect": "allow"
+#         },
+#         {
+#             "action": ["publish", "unpublish"],
+#             "principal": ["group:editor"],
+#             "effect": "allow"
+#         }
+#     ]
+
 
