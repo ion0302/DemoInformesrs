@@ -1,7 +1,7 @@
 from django.contrib import admin
 
-from apps.users.models import UserManager
+from apps.users.models import UserMeta
 
-admin.site.register(UserManager)
+admin.site.register(UserMeta)
 
 

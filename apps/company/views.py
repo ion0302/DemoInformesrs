@@ -3,7 +3,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
 from apps.company.models import Plan, Rule, Company
+from apps.company.permisions import UserHasPlan
 from apps.company.serializers import PlanSerializer, RuleSerializer, CompanySerializer
+
+from rest_framework.throttling import UserRateThrottle
 
 
 class PlanViewSet(ModelViewSet):
@@ -21,6 +24,6 @@ class RuleViewSet(ModelViewSet):
 class CompanyViewSet(ModelViewSet):
     serializer_class = CompanySerializer
     queryset = Company.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, UserHasPlan]
 
 

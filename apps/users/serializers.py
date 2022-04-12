@@ -2,7 +2,7 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
-from apps.users.models import UserManager
+from apps.users.models import UserMeta
 
 CustomUser = get_user_model()
 
@@ -21,7 +21,7 @@ class UserListSerializer(serializers.ModelSerializer):
         fields = ['id', "first_name", "last_name"]
 
 
-class UserManagerSerializer(serializers.ModelSerializer):
+class UserMetaSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserManager
+        model = UserMeta
         fields = '__al__'
