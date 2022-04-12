@@ -1,18 +1,21 @@
+from django.contrib.auth.models import User
 from rest_framework.permissions import BasePermission
 
-# from apps.users.models import UserMeta
-#
-#
-# class UserHasPlan(BasePermission):
-#     message = 'You are not buy any plan'
-#
-#     def has_permission(self, request, view):
-#         user = request.user
-#         if user.is_authenticated:
-#             if UserMeta.objects.filter(user=user).count() == 0:
-#                 return False
-#
-#             elif user.meta.plan is None:
-#                 return False
-#             else:
-#                 return True
+from apps.company.models import PlanLog
+
+
+class UserHasActivePlan(BasePermission):
+    message = 'You are not buy any plan'
+
+    def has_permission(self, request, view):
+        user = request.user
+        instance = PlanLog.objects.filter(user=user).last()
+
+        if user.is_authenticated:
+            if PlanLog.objects.filter(user=user).count() == 0:
+                return False
+            elif instance.is_active():
+                return True
+            else:
+                return False
+
