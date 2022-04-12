@@ -1,15 +1,23 @@
+from datetime import timedelta
+
 from django.contrib.auth.models import User
 from django.utils import timezone
 from djmoney.models.fields import MoneyField
 from phonenumber_field.modelfields import PhoneNumberField
-from django.db import models
+from django.db import models, router
 
 
 class Plan(models.Model):
     name = models.CharField(max_length=200, null=True)
     price = MoneyField(default_currency='USD', max_digits=10, decimal_places=2, null=True)
-    date_created = models.DateField(default=timezone.now, blank=True)
-    date_active = models.DateField(default=timezone.now, blank=True)
+    active_period = models.DurationField(blank=True, default=timedelta(seconds=0))
+
+    def is_active(self):
+        instance = PlanLog.objects.get(plan=self)
+        if instance and instance.date_created + self.active_period < timezone.now():
+            return True
+        else:
+            return False
 
 
 class Rule(models.Model):
@@ -17,6 +25,12 @@ class Rule(models.Model):
     per_day = models.PositiveIntegerField(null=True, default=None)
     per_total = models.PositiveIntegerField(null=True, default=None)
     plan = models.ForeignKey(Plan, on_delete=models.CASCADE, related_name='plan_rules_set')
+
+
+class PlanLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_planlog_set')
+    date_created = models.DateField(default=timezone.now, blank=True, null=True)
+    plan = models.ForeignKey(Plan, on_delete=models.SET_NULL, null=True, related_name='plan_planlog_set')
 
 
 class Company(models.Model):
