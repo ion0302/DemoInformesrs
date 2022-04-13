@@ -31,10 +31,7 @@ class PlanLog(models.Model):
             return True
         else:
             return False
-    """
-    def save(self):
-        no save if user has a active log
-    """
+
 
 class Company(models.Model):
     name = models.CharField(max_length=200)
