@@ -3,10 +3,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from apps.company.models import Plan, Rule, Company, PlanLog
+from apps.company.models import Plan, Rule, Company, PlanLog, RequestLog
 from apps.company.permisions import UserHasActivePlan, SimpleAccessPolicy, VIPAccessPolicy, MainPermissions
 
-from apps.company.serializers import PlanSerializer, RuleSerializer, CompanySerializer, PlanLogSerializer
+from apps.company.serializers import PlanSerializer, RuleSerializer, CompanySerializer, PlanLogSerializer, \
+    RequestLogSerializer
 
 
 class PlanViewSet(ModelViewSet):
@@ -25,6 +26,12 @@ class PlanLogViewSet(ModelViewSet):
     serializer_class = PlanLogSerializer
     queryset = PlanLog.objects.all()
     permission_classes = [IsAuthenticated, MainPermissions]
+
+
+class RequestLogViewSet(ModelViewSet):
+    serializer_class = RequestLogSerializer
+    queryset = RequestLog.objects.all()
+    permission_classes = [IsAuthenticated]
 
 
 class CompanyViewSet(ModelViewSet):

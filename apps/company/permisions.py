@@ -1,11 +1,12 @@
 from typing import List
 
 from django.contrib.auth.models import User
+from django.utils import timezone
 from rest_access_policy import AccessPolicy
 from rest_framework.permissions import BasePermission
 from rest_framework.throttling import BaseThrottle
 
-from apps.company.models import PlanLog, Company, Rule, Plan
+from apps.company.models import PlanLog, Company, Rule, Plan, RequestLog
 
 
 class UserHasActivePlan(BasePermission):
@@ -28,6 +29,7 @@ class UserHasActivePlan(BasePermission):
 
 class SimpleAccessPolicy(AccessPolicy):
     pass
+
 
 #     """
 #         Another way
@@ -78,12 +80,26 @@ class MainPermissions(BasePermission):
 
     def has_permission(self, request, view) -> bool:
         action = view.action
+        pattern = view.queryset.model.__name__
+        resource = f'{view.queryset.model.__name__}.{action}'
         endpoint_list = []
         last_log = PlanLog.objects.filter(user=request.user).last()
         if last_log:
             endpoint_list = list(Rule.objects.filter(plan=last_log.plan).values_list('resource', flat=True))
-        if f'{view.queryset.model.__name__}.{action}' in endpoint_list:
+
+        # instance = Rule.objects.get(plan=last_log.plan, resource=resource)
+        #
+        # if instance and RequestLog.objects.filter(user=request.user,
+        #                                           pattern=pattern,
+        #                                           action=action).count() > instance.per_total:
+        #     return False
+
+        if resource in endpoint_list:
             return True
+        # RequestLog.objects.create(user=request.user,
+        #                           pattern=pattern,
+        #                           action=action,
+        #                           access_date=timezone.now())
 
         return False
 

@@ -13,6 +13,10 @@ class Plan(models.Model):
 
 
 class Rule(models.Model):
+    class Meta:
+        unique_together = [
+            ('plan', 'resource')
+        ]
     resource = models.CharField(max_length=200)
     per_day = models.PositiveIntegerField(null=True, default=None)
     per_total = models.PositiveIntegerField(null=True, default=None)
@@ -30,6 +34,14 @@ class PlanLog(models.Model):
             return True
         else:
             return False
+
+
+class RequestLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_requestlog_set')
+    pattern = models.CharField(max_length=50)
+    action = models.CharField(max_length=50)
+    access_date = models.DateTimeField(blank=True, default=timezone.now)
+    plan_log = models.ForeignKey(PlanLog, on_delete=models.CASCADE, related_name='plan_log_requestlog_set')
 
 
 class Company(models.Model):
