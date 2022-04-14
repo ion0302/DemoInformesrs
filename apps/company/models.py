@@ -12,7 +12,6 @@ class Plan(models.Model):
     price = MoneyField(default_currency='USD', max_digits=10, decimal_places=2, null=True)
 
 
-
 class Rule(models.Model):
     resource = models.CharField(max_length=200)
     per_day = models.PositiveIntegerField(null=True, default=None)
@@ -23,11 +22,11 @@ class Rule(models.Model):
 class PlanLog(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_planlog_set')
     plan = models.ForeignKey(Plan, on_delete=models.SET_NULL, null=True, related_name='plan_planlog_set')
-    date_created = models.DateField(default=timezone.now, blank=True, null=True)
+    date_created = models.DateTimeField(default=timezone.now, blank=True, null=True)
     active_period = models.DurationField(blank=True, default=timedelta(seconds=0))
 
     def is_active(self):
-        if self and self.date_created + self.active_period > timezone.now().date():
+        if self and self.date_created + self.active_period > timezone.now():
             return True
         else:
             return False

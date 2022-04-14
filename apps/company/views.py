@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from apps.company.models import Plan, Rule, Company, PlanLog
-from apps.company.permisions import UserHasActivePlan, SimpleAccessPolicy, VIPAccessPolicy
+from apps.company.permisions import UserHasActivePlan, SimpleAccessPolicy, VIPAccessPolicy, MainPermissions
 
 from apps.company.serializers import PlanSerializer, RuleSerializer, CompanySerializer, PlanLogSerializer
 
@@ -24,13 +24,13 @@ class RuleViewSet(ModelViewSet):
 class PlanLogViewSet(ModelViewSet):
     serializer_class = PlanLogSerializer
     queryset = PlanLog.objects.all()
-    permission_classes = [IsAuthenticated, SimpleAccessPolicy]
+    permission_classes = [IsAuthenticated, MainPermissions]
 
 
 class CompanyViewSet(ModelViewSet):
     serializer_class = CompanySerializer
     queryset = Company.objects.all()
-    permission_classes = [IsAuthenticated, UserHasActivePlan, SimpleAccessPolicy]
+    permission_classes = [IsAuthenticated, UserHasActivePlan, MainPermissions]
 
     @action(detail=False, methods=['GET'])
     def test_action(self, request, *args, **kwargs):
