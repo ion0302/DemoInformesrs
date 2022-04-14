@@ -70,6 +70,7 @@ class SimpleAccessPolicy(AccessPolicy):
 
         return self._evaluate_statements(statements, request, view, action)
 
+
 class VIPAccessPolicy(AccessPolicy):
     statements = []
     queryset = Rule.objects.filter(plan__name='VIP')
@@ -84,6 +85,5 @@ class VIPAccessPolicy(AccessPolicy):
             }
             statements.append(rule)
 
-# no update after add/delete  rules
-# change update statement after add new rule
-# change statement from list to unique values
+
+
