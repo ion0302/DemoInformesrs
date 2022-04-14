@@ -83,23 +83,26 @@ class MainPermissions(BasePermission):
         pattern = view.queryset.model.__name__
         resource = f'{view.queryset.model.__name__}.{action}'
         endpoint_list = []
+        aux = 0
         last_log = PlanLog.objects.filter(user=request.user).last()
         if last_log:
             endpoint_list = list(Rule.objects.filter(plan=last_log.plan).values_list('resource', flat=True))
 
-        # instance = Rule.objects.get(plan=last_log.plan, resource=resource)
-        #
-        # if instance and RequestLog.objects.filter(user=request.user,
-        #                                           pattern=pattern,
-        #                                           action=action).count() > instance.per_total:
-        #     return False
+        instance = Rule.objects.get(plan=last_log.plan, resource=resource)
+        if resource in endpoint_list and instance and \
+                RequestLog.objects.filter(user=request.user,
+                                          pattern=pattern,
+                                          action=action,
+                                          plan_log=last_log).count()-1 <= instance.per_total:
+            aux = 1
 
-        if resource in endpoint_list:
+        if aux == 1:
+            RequestLog.objects.create(user=request.user,
+                                      pattern=pattern,
+                                      action=action,
+                                      access_date=timezone.now(),
+                                      plan_log=last_log)
             return True
-        # RequestLog.objects.create(user=request.user,
-        #                           pattern=pattern,
-        #                           action=action,
-        #                           access_date=timezone.now())
 
         return False
 
