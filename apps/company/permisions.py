@@ -88,21 +88,21 @@ class MainPermissions(BasePermission):
         if last_log:
             endpoint_list = list(Rule.objects.filter(plan=last_log.plan).values_list('resource', flat=True))
 
-        instance = Rule.objects.get(plan=last_log.plan, resource=resource)
-        if resource in endpoint_list and instance and \
-                RequestLog.objects.filter(user=request.user,
+        if resource in endpoint_list:
+            instance = Rule.objects.get(plan=last_log.plan, resource=resource)
+            if RequestLog.objects.filter(user=request.user,
+                                         pattern=pattern,
+                                         action=action,
+                                         plan_log=last_log).count()+1 <= instance.per_total:
+                aux = 1
+
+            if aux == 1:
+                RequestLog.objects.create(user=request.user,
                                           pattern=pattern,
                                           action=action,
-                                          plan_log=last_log).count()-1 <= instance.per_total:
-            aux = 1
-
-        if aux == 1:
-            RequestLog.objects.create(user=request.user,
-                                      pattern=pattern,
-                                      action=action,
-                                      access_date=timezone.now(),
-                                      plan_log=last_log)
-            return True
+                                          access_date=timezone.now(),
+                                          plan_log=last_log)
+                return True
 
         return False
 
