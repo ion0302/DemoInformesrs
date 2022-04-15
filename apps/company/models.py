@@ -46,7 +46,7 @@ class PlanLog(models.Model):
 
     def clean(self):
         last_log = PlanLog.objects.filter(user=self.user).last()
-        if last_log and last_log.plan and last_log.is_active():
+        if self != last_log and  last_log and last_log.plan and last_log.is_active():
             raise ValidationError("User already has a plan")
 
 
