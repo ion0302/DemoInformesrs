@@ -80,23 +80,43 @@ class MainPermissions(BasePermission):
 
     def has_permission(self, request, view) -> bool:
         action = view.action
+        aux_total = False
+        aux_day = False
         pattern = view.queryset.model.__name__
         resource = f'{view.queryset.model.__name__}.{action}'
         endpoint_list = []
-        aux = 0
+
         last_log = PlanLog.objects.filter(user=request.user).last()
         if last_log:
             endpoint_list = list(Rule.objects.filter(plan=last_log.plan).values_list('resource', flat=True))
 
         if resource in endpoint_list:
             instance = Rule.objects.get(plan=last_log.plan, resource=resource)
-            if RequestLog.objects.filter(user=request.user,
-                                         pattern=pattern,
-                                         action=action,
-                                         plan_log=last_log).count()+1 <= instance.per_total:
-                aux = 1
 
-            if aux == 1:
+            if not (instance.per_total and instance.per_day):
+                return True
+
+            if instance.per_day == 0 and instance.per_total == 0:
+                return False
+
+            total_requests = RequestLog.objects.filter(user=request.user,
+                                                       pattern=pattern,
+                                                       action=action,
+                                                       plan_log=last_log).count()
+
+            if instance.per_total and total_requests < instance.per_total:
+                aux_total = True
+
+            day_requests = RequestLog.objects.filter(access_date__date=timezone.now().date(),
+                                                     user=request.user,
+                                                     pattern=pattern,
+                                                     action=action,
+                                                     plan_log=last_log).count()
+
+            if instance.per_day and day_requests < instance.per_day:
+                aux_day = True
+
+            if aux_day and aux_total:
                 RequestLog.objects.create(user=request.user,
                                           pattern=pattern,
                                           action=action,
@@ -105,18 +125,3 @@ class MainPermissions(BasePermission):
                 return True
 
         return False
-
-
-class VIPAccessPolicy(AccessPolicy):
-    statements = []
-    queryset = Rule.objects.filter(plan__name='VIP')
-    if queryset:
-        for i in queryset:
-            res = i.resource.split('.')
-            pattern, action = res[0], res[1]
-            rule = {
-                "action": [f'{action}'],
-                "principal": "*",
-                "effect": "allow"
-            }
-            statements.append(rule)

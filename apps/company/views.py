@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
 from apps.company.models import Plan, Rule, Company, PlanLog, RequestLog
-from apps.company.permisions import UserHasActivePlan, SimpleAccessPolicy, VIPAccessPolicy, MainPermissions
+from apps.company.permisions import UserHasActivePlan, MainPermissions
 
 from apps.company.serializers import PlanSerializer, RuleSerializer, CompanySerializer, PlanLogSerializer, \
     RequestLogSerializer
@@ -50,16 +50,4 @@ class CompanyViewSet(ModelViewSet):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
-
-
-    # def get_permissions(self):
-    #     instance = PlanLog.objects.filter(user=self.request.user).last()
-    #     if instance and instance.plan.name == 'Simple':
-    #         self.permission_classes = [SimpleAccessPolicy, UserHasActivePlan]
-    #     if instance and instance.plan.name == 'VIP':
-    #         self.permission_classes = [VIPAccessPolicy, UserHasActivePlan]
-    #
-    #     return super(CompanyViewSet, self).get_permissions()
-
-
 
