@@ -1,10 +1,14 @@
 from datetime import timedelta
 
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator
 from django.utils import timezone
 from djmoney.models.fields import MoneyField
 from phonenumber_field.modelfields import PhoneNumberField
 from django.db import models, router
+
+from django.db import models
 
 
 class Plan(models.Model):
@@ -17,10 +21,15 @@ class Rule(models.Model):
         unique_together = [
             ('plan', 'resource')
         ]
+
     resource = models.CharField(max_length=200)
-    per_day = models.PositiveIntegerField(null=True, default=None)
     per_total = models.PositiveIntegerField(null=True, default=None)
+    per_day = models.PositiveIntegerField(null=True, default=None)
     plan = models.ForeignKey(Plan, on_delete=models.CASCADE, related_name='plan_rules_set')
+
+    def clean(self):
+        if self.per_total < self.per_day:
+            raise ValidationError("Number of requests per_day can't be biggest than per_total")
 
 
 class PlanLog(models.Model):
@@ -34,6 +43,11 @@ class PlanLog(models.Model):
             return True
         else:
             return False
+
+    def clean(self):
+        last_log = PlanLog.objects.filter(user=self.user).last()
+        if last_log and last_log.plan and last_log.is_active():
+            raise ValidationError("User already has a plan")
 
 
 class RequestLog(models.Model):
