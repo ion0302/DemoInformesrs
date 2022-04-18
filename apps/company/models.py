@@ -39,14 +39,14 @@ class PlanLog(models.Model):
     active_period = models.DurationField(blank=True, default=timedelta(seconds=0))
 
     def is_active(self):
-        if self and self.date_created + self.active_period > timezone.now():
+        if self and self.date_created < timezone.now() < self.date_created + self.active_period:
             return True
         else:
             return False
 
     def clean(self):
-        last_log = PlanLog.objects.filter(user=self.user).last()
-        if self != last_log and  last_log and last_log.plan and last_log.is_active():
+        last_log = PlanLog.objects.filter(user=self.user).order_by('-pk').first()
+        if self != last_log and last_log and last_log.plan and last_log.is_active():
             raise ValidationError("User already has a plan")
 
 
