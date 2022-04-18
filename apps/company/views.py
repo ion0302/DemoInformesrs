@@ -3,35 +3,16 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
-from apps.company.models import Plan, Rule, Company, PlanLog, RequestLog
+from apps.company.models import Company, PlanLog
 from apps.company.permisions import UserHasActivePlan, MainPermissions
 
-from apps.company.serializers import PlanSerializer, RuleSerializer, CompanySerializer, PlanLogSerializer, \
-    RequestLogSerializer
-
-
-class PlanViewSet(ModelViewSet):
-    serializer_class = PlanSerializer
-    queryset = Plan.objects.all()
-    permission_classes = [IsAuthenticated]
-
-
-class RuleViewSet(ModelViewSet):
-    serializer_class = RuleSerializer
-    queryset = Rule.objects.all()
-    permission_classes = [IsAuthenticated]
+from apps.company.serializers import CompanySerializer, PlanLogSerializer
 
 
 class PlanLogViewSet(ModelViewSet):
     serializer_class = PlanLogSerializer
     queryset = PlanLog.objects.all()
     permission_classes = [IsAuthenticated, MainPermissions]
-
-
-class RequestLogViewSet(ModelViewSet):
-    serializer_class = RequestLogSerializer
-    queryset = RequestLog.objects.all()
-    permission_classes = [IsAuthenticated]
 
 
 class CompanyViewSet(ModelViewSet):
@@ -45,7 +26,7 @@ class CompanyViewSet(ModelViewSet):
 
         page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = self.get_serializer(page, many=True)
+            serializer = self.get_serializer(page)
             return self.get_paginated_response(serializer.data)
 
         serializer = self.get_serializer(queryset, many=True)

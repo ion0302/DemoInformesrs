@@ -1,11 +1,7 @@
-from typing import List
-
-from django.contrib.auth.models import User
 from django.utils import timezone
-from rest_access_policy import AccessPolicy
 from rest_framework.permissions import BasePermission
 
-from apps.company.models import PlanLog, Company, Rule, Plan, RequestLog
+from apps.company.models import PlanLog, Rule, RequestLog
 
 
 class UserHasActivePlan(BasePermission):
@@ -31,13 +27,12 @@ class MainPermissions(BasePermission):
         aux_total = False
         aux_day = False
         pattern = view.queryset.model.__name__
-        resource = f'{view.queryset.model.__name__}.{action}'
-        endpoint_list = []
+        resource = f'{pattern}.{action}'
 
         last_log = PlanLog.objects.filter(user=request.user).order_by('-pk').first()
 
         if last_log:
-            instance = Rule.objects.get(plan=last_log.plan, resource=resource)
+            instance = Rule.objects.filter(plan=last_log.plan, resource=resource).first()
 
             if instance:
                 if instance.per_day == 0 and instance.per_total == 0:
@@ -53,6 +48,8 @@ class MainPermissions(BasePermission):
 
                 if instance.per_total and total_requests < instance.per_total:
                     aux_total = True
+                else:
+                    return False
 
                 day_requests = RequestLog.objects.filter(access_date__date=timezone.now().date(),
                                                          user=request.user,
@@ -62,6 +59,8 @@ class MainPermissions(BasePermission):
 
                 if instance.per_day and day_requests < instance.per_day:
                     aux_day = True
+                else:
+                    return False
 
                 if aux_day and aux_total:
                     RequestLog.objects.create(user=request.user,
@@ -70,7 +69,5 @@ class MainPermissions(BasePermission):
                                               access_date=timezone.now(),
                                               plan_log=last_log)
                     return True
-
-            return False
 
         return False
