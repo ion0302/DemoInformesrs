@@ -34,7 +34,7 @@ class Rule(models.Model):
 
 class PlanLog(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_planlog_set')
-    plan = models.ForeignKey(Plan, on_delete=models.SET_NULL, null=True, related_name='plan_planlog_set')
+    plan = models.ForeignKey(Plan, on_delete=models.CASCADE, null=True, related_name='plan_planlog_set')
     date_created = models.DateTimeField(default=timezone.now, blank=True, null=True)
     active_period = models.DurationField(blank=True, default=timedelta(seconds=0))
 
