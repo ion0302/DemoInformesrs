@@ -52,16 +52,13 @@ class MainPermissions(BasePermission):
                 elif current_log:
                     total_requests = current_log.count_total
 
-                    if current_log.access_date.date() != timezone.now().date():
-                        current_log.count_day -= 1
-                        current_log.save()
-
                     if instance.per_total and total_requests < instance.per_total:
                         aux_total = True
 
                     day_requests = current_log.count_day
 
-                    if instance.per_day and day_requests < instance.per_day:
+                    if instance.per_day and day_requests < instance.per_day or \
+                            current_log.access_date.date() != timezone.now().date():
                         aux_day = True
 
                     if aux_day and aux_total:
