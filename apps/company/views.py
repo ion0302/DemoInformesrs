@@ -27,7 +27,6 @@ class ResourceViewSet(GenericViewSet):
         pattern = self.queryset.model.__name__
         action = self.action
 
-
         try:
             self.initial(request, *args, **kwargs)
 
@@ -47,13 +46,17 @@ class ResourceViewSet(GenericViewSet):
 
         if is_success(self.response.status_code):
             last_log = PlanLog.objects.filter(user=request.user).order_by('-pk').first()
-            RequestLog.objects.create(user=request.user,
-                                      pattern=pattern,
-                                      action=action,
-                                      access_date=timezone.now(),
-                                      plan_log=last_log)
+            instance, created = RequestLog.objects.get_or_create(user=request.user,
+                                                                 pattern=pattern,
+                                                                 action=action,
+                                                                 plan_log=last_log)
 
-        #handler.__name__ #action
+            if instance.access_date.date() != timezone.now().date():
+                instance.count_day = 0
+
+            instance.access_date = timezone.now()
+            instance.count()
+            instance.save()
 
         return self.response
 
@@ -80,4 +83,3 @@ class CompanyViewSet(ModelViewSet, ResourceViewSet):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
-

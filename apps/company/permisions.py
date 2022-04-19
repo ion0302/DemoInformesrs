@@ -41,28 +41,30 @@ class MainPermissions(BasePermission):
                 elif not (instance.per_total and instance.per_day):
                     return True
 
-                total_requests = RequestLog.objects.filter(user=request.user,
-                                                           pattern=pattern,
-                                                           action=action,
-                                                           plan_log=last_log).count()
+                current_log = RequestLog.objects.filter(user=request.user,
+                                                        pattern=pattern,
+                                                        action=action,
+                                                        plan_log=last_log).first()
 
-                if instance.per_total and total_requests < instance.per_total:
-                    aux_total = True
-                else:
-                    return False
-
-                day_requests = RequestLog.objects.filter(access_date__date=timezone.now().date(),
-                                                         user=request.user,
-                                                         pattern=pattern,
-                                                         action=action,
-                                                         plan_log=last_log).count()
-
-                if instance.per_day and day_requests < instance.per_day:
-                    aux_day = True
-                else:
-                    return False
-
-                if aux_day and aux_total:
+                if not current_log:
                     return True
+
+                elif current_log:
+                    total_requests = current_log.count_total
+
+                    if current_log.access_date.date() != timezone.now().date():
+                        current_log.count_day -= 1
+                        current_log.save()
+
+                    if instance.per_total and total_requests < instance.per_total:
+                        aux_total = True
+
+                    day_requests = current_log.count_day
+
+                    if instance.per_day and day_requests < instance.per_day:
+                        aux_day = True
+
+                    if aux_day and aux_total:
+                        return True
 
         return False

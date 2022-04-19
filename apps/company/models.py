@@ -56,6 +56,12 @@ class RequestLog(models.Model):
     action = models.CharField(max_length=50)
     access_date = models.DateTimeField(blank=True, default=timezone.now)
     plan_log = models.ForeignKey(PlanLog, on_delete=models.CASCADE, related_name='plan_log_requestlog_set')
+    count_total = models.PositiveIntegerField(default=0)
+    count_day = models.PositiveIntegerField(default=0)
+
+    def count(self):
+        self.count_day += 1
+        self.count_total += 1
 
 
 class Company(models.Model):
