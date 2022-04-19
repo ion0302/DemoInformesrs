@@ -63,11 +63,6 @@ class MainPermissions(BasePermission):
                     return False
 
                 if aux_day and aux_total:
-                    RequestLog.objects.create(user=request.user,
-                                              pattern=pattern,
-                                              action=action,
-                                              access_date=timezone.now(),
-                                              plan_log=last_log)
                     return True
 
         return False
