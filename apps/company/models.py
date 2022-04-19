@@ -2,11 +2,9 @@ from datetime import timedelta
 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from django.core.validators import MaxValueValidator
 from django.utils import timezone
 from djmoney.models.fields import MoneyField
 from phonenumber_field.modelfields import PhoneNumberField
-from django.db import models, router
 
 from django.db import models
 

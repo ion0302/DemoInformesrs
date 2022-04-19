@@ -49,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'drf_util.middlewares.PrintSQlMiddleware',
 ]
 
 ROOT_URLCONF = 'DemoInformesrs.urls'

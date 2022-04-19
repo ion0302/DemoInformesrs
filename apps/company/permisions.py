@@ -23,10 +23,10 @@ class UserHasActivePlan(BasePermission):
 class MainPermissions(BasePermission):
 
     def has_permission(self, request, view) -> bool:
-        action = view.action
         aux_total = False
         aux_day = False
-        pattern = view.queryset.model.__name__
+        pattern = view.get_model()
+        action = view.get_action()
         resource = f'{pattern}.{action}'
 
         last_log = PlanLog.objects.filter(user=request.user).order_by('-pk').first()
@@ -35,7 +35,7 @@ class MainPermissions(BasePermission):
             instance = Rule.objects.filter(plan=last_log.plan, resource=resource).first()
 
             if instance:
-                if instance.per_day == 0 and instance.per_total == 0:
+                if instance.per_day == 0 or instance.per_total == 0:
                     return False
 
                 elif not (instance.per_total and instance.per_day):

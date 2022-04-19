@@ -12,6 +12,15 @@ from apps.company.serializers import CompanySerializer, PlanLogSerializer
 
 
 class ResourceViewSet(GenericViewSet):
+    model_name: str
+    action_name: str
+
+    def get_model(self) -> str:
+        return getattr(self, 'model_name', f'{self.queryset.model.__name__}')
+
+    def get_action(self) -> str:
+        return getattr(self, 'action_name', f'{self.action}')
+
     def dispatch(self, request, *args, **kwargs):
         """
         `.dispatch()` is pretty much the same as Django's regular dispatch,
@@ -24,8 +33,8 @@ class ResourceViewSet(GenericViewSet):
         self.request = request
         self.headers = self.default_response_headers  # deprecate?
 
-        pattern = self.queryset.model.__name__
-        action = self.action
+        pattern = self.get_model()
+        action = self.get_action()
 
         try:
             self.initial(request, *args, **kwargs)
@@ -64,13 +73,15 @@ class ResourceViewSet(GenericViewSet):
 class PlanLogViewSet(ModelViewSet, ResourceViewSet):
     serializer_class = PlanLogSerializer
     queryset = PlanLog.objects.all()
-    permission_classes = [IsAuthenticated, MainPermissions]
+    permission_classes = [IsAuthenticated, UserHasActivePlan, MainPermissions]
 
 
 class CompanyViewSet(ModelViewSet, ResourceViewSet):
     serializer_class = CompanySerializer
     queryset = Company.objects.all()
     permission_classes = [IsAuthenticated, UserHasActivePlan, MainPermissions]
+
+    resource_name = 'test.aaa'
 
     @action(detail=False, methods=['GET'])
     def test_action(self, request, *args, **kwargs):
