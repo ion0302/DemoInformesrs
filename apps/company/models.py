@@ -21,13 +21,16 @@ class Rule(models.Model):
         ]
 
     resource = models.CharField(max_length=200)
-    per_total = models.PositiveIntegerField(null=True, default=None)
-    per_day = models.PositiveIntegerField(null=True, default=None)
+    per_total = models.PositiveIntegerField(null=True, default=None, blank=True)
+    per_day = models.PositiveIntegerField(null=True, default=None, blank=True)
     plan = models.ForeignKey(Plan, on_delete=models.CASCADE, related_name='plan_rules_set')
 
     def clean(self):
-        if self.per_total < self.per_day:
-            raise ValidationError("Number of requests per_day can't be biggest than per_total")
+        if self.per_total and self.per_day:
+            if self.per_total < self.per_day:
+                raise ValidationError("Number of requests per_day can't be biggest than per_total")
+            elif self.per_day == 0 or self.per_total == 0:
+                raise ValidationError("You cannot assign a value equal to 0")
 
 
 class PlanLog(models.Model):

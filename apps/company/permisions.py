@@ -35,10 +35,7 @@ class MainPermissions(BasePermission):
             instance = Rule.objects.filter(plan=last_log.plan, resource=resource).first()
 
             if instance:
-                if instance.per_day == 0 or instance.per_total == 0:
-                    return False
-
-                elif not (instance.per_total and instance.per_day):
+                if not (instance.per_total and instance.per_day):
                     return True
 
                 current_log = RequestLog.objects.filter(user=request.user,
