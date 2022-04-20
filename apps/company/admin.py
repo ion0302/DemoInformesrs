@@ -32,8 +32,11 @@ class PlanAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(Plan, PlanAdmin)
+class RuleAdmin(admin.ModelAdmin):
+    form = RuleForm
 
-admin.site.register(Rule)
+
+admin.site.register(Plan, PlanAdmin)
+admin.site.register(Rule, RuleAdmin)
 admin.site.register(PlanLog)
 admin.site.register(RequestLog)
