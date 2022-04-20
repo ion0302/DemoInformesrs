@@ -2,16 +2,23 @@ from django.contrib import admin
 from django import forms
 from apps.company.models import Plan, Rule, PlanLog, RequestLog
 
+from apps.company.views import CompanyViewSet, PlanLogViewSet
+from rest_framework.routers import SimpleRouter
 
-class RuleResourceSelect(forms.Select):
-    pass
+
+def get_actions():
+    router = SimpleRouter()
+    routes = router.get_routes(CompanyViewSet)
+    resource_list = []
+    for route in routes:
+        resource = [f'Company.{res}' for res in list(route.mapping.values())]
+        resource_list += resource
+
+    return [(resource, resource.upper()) for resource in resource_list]
 
 
 class RuleForm(forms.ModelForm):
-    class Meta:
-        model = Rule
-        fields = '__all__'
-        widgets = {'resource': RuleResourceSelect}
+    resource = forms.ChoiceField(choices=get_actions())
 
 
 class RuleInline(admin.TabularInline):
