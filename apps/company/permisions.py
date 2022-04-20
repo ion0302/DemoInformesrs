@@ -35,7 +35,7 @@ class MainPermissions(BasePermission):
             instance = Rule.objects.filter(plan=last_log.plan, resource=resource).first()
 
             if instance:
-                if not (instance.per_total and instance.per_day):
+                if instance.per_total is None and instance.per_day is None:
                     return True
 
                 current_log = RequestLog.objects.filter(user=request.user,
@@ -48,13 +48,12 @@ class MainPermissions(BasePermission):
 
                 elif current_log:
                     total_requests = current_log.count_total
-
-                    if instance.per_total and total_requests < instance.per_total:
-                        aux_total = True
-
                     day_requests = current_log.count_day
 
-                    if instance.per_day and day_requests < instance.per_day or \
+                    if instance.per_total is None or total_requests < instance.per_total:
+                        aux_total = True
+
+                    if instance.per_day is None or day_requests < instance.per_day or \
                             current_log.access_date.date() != timezone.now().date():
                         aux_day = True
 
